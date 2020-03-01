@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name" translatable="false">Benzorro</string>
+    <string name="title_home">Stations</string>
+    <string name="title_dashboard">On map</string>
+    <string name="title_notifications">Price trends</string>
+    <string name="title_about">About</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
