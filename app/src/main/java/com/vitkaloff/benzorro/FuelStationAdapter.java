@@ -4,45 +4,58 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.vitkaloff.benzorro.ui.home.HomeFragment;
+
+import java.math.BigDecimal;
 import java.util.List;
-import java.math.*;
 
-public class FuelStationAdapter extends ArrayAdapter<FuelStation> {
+import androidx.recyclerview.widget.RecyclerView;
 
+public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.ViewHolder> {
     private LayoutInflater inflater;
-    private int layout;
     private List<FuelStation> fuelStations;
 
-    public FuelStationAdapter(Context context, int resource, List<FuelStation> fuelStations){
-        super(context, resource, fuelStations);
+    public FuelStationAdapter(HomeFragment fragment, List<FuelStation> fuelStations) {
         this.fuelStations = fuelStations;
-        this.layout = resource;
-        this.inflater = LayoutInflater.from(context);
+        this.inflater = LayoutInflater.from(fragment.getActivity());
+    }
+    @Override
+    public FuelStationAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        View view = inflater.inflate(R.layout.fuel_list, parent, false);
+        return new ViewHolder(view);
     }
 
-    public View getView(int position, View ConvertView, ViewGroup parent){
-        View view = inflater.inflate(this.layout, parent, false);
+    @Override
+    public void onBindViewHolder(FuelStationAdapter.ViewHolder holder, int position) {
+        FuelStation fuelstation = fuelStations.get(position);
+        holder.imageView.setImageResource(fuelstation.getLogo());
+        holder.imageView.setImageResource(fuelstation.getLogo());
+        holder.brandView.setText("Газпромнефть");
+        holder.addressView.setText(fuelstation.getAddr());
+        BigDecimal distance = BigDecimal.valueOf(fuelstation.getDistance() / 1000).setScale(2,BigDecimal.ROUND_HALF_DOWN);
+        holder.distanceView.setText(distance +" км");
+        holder.priceView.setText(0 + " \u20BD");
+    }
 
-        ImageView logoView = (ImageView) view.findViewById(R.id.logo);
-        TextView brandView = (TextView) view.findViewById(R.id.brand);
-        TextView addressView = (TextView) view.findViewById(R.id.address);
-        TextView distanceView = (TextView) view.findViewById(R.id.distance);
-        TextView priceView = (TextView) view.findViewById(R.id.price);
+    @Override
+    public int getItemCount() {
+        return fuelStations.size();
+    }
 
-        FuelStation fuelStation = fuelStations.get(position);
-
-        logoView.setImageResource(fuelStation.getLogo());
-        // brandView.setText(fuelStation.getBrand().toString());
-        brandView.setText("Газпромнефть");
-        addressView.setText(fuelStation.getAddr());
-        BigDecimal distance = BigDecimal.valueOf(fuelStation.getDistance().doubleValue() / 1000).setScale(2,BigDecimal.ROUND_HALF_DOWN);
-        distanceView.setText(distance +" км");
-        priceView.setText(0 + " \u20BD");
-
-        return view;
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final ImageView imageView;
+        final TextView brandView, addressView, distanceView, priceView;
+        ViewHolder(View view){
+            super(view);
+            imageView = view.findViewById(R.id.logo);
+            brandView = view.findViewById(R.id.brand);
+            addressView = view.findViewById(R.id.address);
+            distanceView = view.findViewById(R.id.distance);
+            priceView = view.findViewById(R.id.price);
+        }
     }
 }

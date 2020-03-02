@@ -6,63 +6,68 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/choice_chip_group"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/FuelStationList"
-        app:singleSelection="true"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="10dp"
-        tools:layout_editor_absoluteY="5dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/choice_chip"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:checked="false"
-            android:text="92"
-            app:checkedIconVisible="true" />
+        <com.google.android.material.chip.ChipGroup
+            android:layout_marginTop="5sp"
+            android:layout_marginBottom="5sp"
+            android:id="@+id/choice_chip_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            tools:ignore="MissingConstraints">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/choice_chip2"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:text="95" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/choice_chip"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:checked="false"
+                android:text="92"
+                app:checkedIconVisible="true" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/choice_chip3"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:text="98" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/choice_chip2"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:text="95" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/choice_chip4"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:text="ДТ" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/choice_chip3"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:text="98" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/choice_chip5"
-            style="@style/Widget.MaterialComponents.Chip.Choice"
-            android:layout_width="wrap_content"
-            android:layout_height="35dp"
-            android:text="ГАЗ" />
+            <com.google.android.material.chip.Chip
+                android:id="@+id/choice_chip4"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:text="ДТ" />
 
-    </com.google.android.material.chip.ChipGroup>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/choice_chip5"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:text="ГАЗ" />
 
-    <ListView
-        android:id="@+id/FuelStationList"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="10dp" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/FuelStationList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="LinearLayoutManager"
+            android:layout_marginLeft="10sp"
+            android:layout_marginRight="10sp"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

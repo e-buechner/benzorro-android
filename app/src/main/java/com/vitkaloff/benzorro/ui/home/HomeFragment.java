@@ -1,42 +1,33 @@
 package com.vitkaloff.benzorro.ui.home;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
-import java.io.IOException;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
-import com.ethanhua.skeleton.Skeleton;
-import com.ethanhua.skeleton.SkeletonScreen;
+import com.faltenreich.skeletonlayout.Skeleton;
+import com.faltenreich.skeletonlayout.SkeletonLayoutUtils;
 import com.google.android.material.snackbar.Snackbar;
-import com.vitkaloff.benzorro.BenzorroAPI;
 import com.vitkaloff.benzorro.FuelStation;
 import com.vitkaloff.benzorro.FuelStationAdapter;
 import com.vitkaloff.benzorro.R;
 import com.vitkaloff.benzorro.RetrofitAPI;
 
-import java.io.IOException;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class HomeFragment extends Fragment {
-
     private HomeViewModel homeViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -49,67 +40,38 @@ public class HomeFragment extends Fragment {
         final List<FuelStation> fuelStations = new ArrayList();
 
         super.onCreate(savedInstanceState);
-        // получаем элемент ListView
 
-        ListView fuelStationList = (ListView) root.findViewById(R.id.FuelStationList);
+        RecyclerView recyclerView = root.findViewById(R.id.FuelStationList);
         // создаем адаптер
-        FuelStationAdapter adapter = new FuelStationAdapter(this.getContext(), R.layout.fuel_list, fuelStations);
-        // устанавливаем адаптер
-        fuelStationList.setAdapter(adapter);
+        FuelStationAdapter adapter = new FuelStationAdapter(this, fuelStations);
+        // устанавливаем для списка адаптер
+        recyclerView.setAdapter(adapter);
 
-        SkeletonScreen skeletonScreen;
+        Skeleton skeleton;
 
-        skeletonScreen = Skeleton.bind(fuelStationList)
-                .load(R.layout.fuel_list)
-                .duration(1000)
-                .color(R.color.shimmer_color)
-                .angle(0)
-                .show();
+        // or apply a new SkeletonLayout to a RecyclerView (showing 5 items)
+        skeleton = SkeletonLayoutUtils.applySkeleton(recyclerView, R.layout.fuel_list, 25);
+        skeleton.setMaskCornerRadius(5);
+
+        skeleton.showSkeleton();
 
         RetrofitAPI.getApi().getStations(30.295386235846195, 59.97306639988085).enqueue(new Callback<List<FuelStation>>() {
             @Override
-            public void onResponse(Call<List<FuelStation>> call, retrofit2.Response<List<FuelStation>> response) {
+            public void onResponse(@NotNull Call<List<FuelStation>> call, @NotNull retrofit2.Response<List<FuelStation>> response) {
+                assert response.body() != null;
                 fuelStations.addAll(response.body());
-                Snackbar.make(getActivity().findViewById(android.R.id.content),
+                Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(R.id.FuelStationList),
                         "Данные получены", Snackbar.LENGTH_LONG).show();
                 adapter.notifyDataSetChanged();
-                skeletonScreen.hide();
+                skeleton.showOriginal();
             }
 
             @Override
-            public void onFailure(Call<List<FuelStation>> call, Throwable t) {
-                Snackbar.make(getActivity().findViewById(android.R.id.content), t.toString(), Snackbar.LENGTH_LONG).show();
-                skeletonScreen.hide();
+            public void onFailure(@NotNull Call<List<FuelStation>> call, @NotNull Throwable t) {
+                Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(R.id.FuelStationList), t.toString(), Snackbar.LENGTH_LONG).show();
+                skeleton.showOriginal();
             }
         });
-
-        // слушатель выбора в списке
-        AdapterView.OnItemClickListener itemListener = new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
-
-                // получаем выбранный пункт
-                FuelStation selectedStation = (FuelStation) parent.getItemAtPosition(position);
-                Toast.makeText(getContext(), "Был выбран пункт " + ' ' + position,
-                        Toast.LENGTH_SHORT).show();
-            }
-        };
-        fuelStationList.setOnItemClickListener(itemListener);
         return root;
-    }
-
-    public class ExampleRequest {
-        OkHttpClient client = new OkHttpClient();
-
-        String run(String url) throws IOException {
-            Request request = new Request.Builder()
-                    .url(url)
-                    .build();
-
-            try (Response response = client.newCall(request).execute()) {
-                return response.body().string();
-            }
-        }
-
     }
 }
