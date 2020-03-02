@@ -60,15 +60,14 @@ public class HomeFragment extends Fragment {
             public void onResponse(@NotNull Call<List<FuelStation>> call, @NotNull retrofit2.Response<List<FuelStation>> response) {
                 assert response.body() != null;
                 fuelStations.addAll(response.body());
-                Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(R.id.FuelStationList),
-                        "Данные получены", Snackbar.LENGTH_LONG).show();
+                // Snackbar.make(container, "Данные получены", Snackbar.LENGTH_LONG).show();
                 adapter.notifyDataSetChanged();
                 skeleton.showOriginal();
             }
 
             @Override
             public void onFailure(@NotNull Call<List<FuelStation>> call, @NotNull Throwable t) {
-                Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(R.id.FuelStationList), t.toString(), Snackbar.LENGTH_LONG).show();
+                Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), t.toString(), Snackbar.LENGTH_LONG).show();
                 skeleton.showOriginal();
             }
         });

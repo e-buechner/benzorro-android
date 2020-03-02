@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.vitkaloff.benzorro.ui.home.HomeFragment;
+import com.vitkaloff.benzorro.Price;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.ViewHolder> {
     private LayoutInflater inflater;
     private List<FuelStation> fuelStations;
+    private Price price;
 
     public FuelStationAdapter(HomeFragment fragment, List<FuelStation> fuelStations) {
         this.fuelStations = fuelStations;
