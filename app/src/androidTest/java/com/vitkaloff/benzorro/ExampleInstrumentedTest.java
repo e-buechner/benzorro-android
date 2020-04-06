@@ -2,13 +2,24 @@ package com.vitkaloff.benzorro;
 
 import android.content.Context;
 
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.*;
+
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
+import org.junit.Rule;
+import androidx.test.rule.ActivityTestRule;
+import static org.hamcrest.Matchers.not;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -17,11 +28,157 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
+    @Rule
+    public ActivityTestRule<MainActivity> activityActivityTestRule = new ActivityTestRule<>(MainActivity.class);
     @Test
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         assertEquals("com.vitkaloff.benzorro", appContext.getPackageName());
+    }
+
+    @Test
+    public void isDisplayed() {
+        // провер€ет, отображаетс€ ли объект на экране
+        // главна€ страница
+        onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.nav_host_fragment)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.choice_chip_group)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.choice_chip)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.choice_chip2)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.choice_chip3)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.choice_chip4)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.choice_chip5)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.FuelStationList)).check(matches(ViewMatchers.isDisplayed()));
+    }
+
+    @Test
+    public void clickView(){
+        // провер€ем, что объекты отображаютс€ на экране после нажати€
+        // главна€ страница
+        onView(withId(R.id.nav_view)).perform(click()).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.nav_host_fragment)).perform(click()).check(matches(ViewMatchers.isDisplayed()));
+    }
+
+    @Test
+    public void scrollView(){
+        // провер€ем, что объекты на нижней панели и верхние кнопки отображаютс€ во врем€ пролистывани€ на главной странице
+        //onView(withId(R.id.FuelStationList)).perform(scrollTo());
+        //onView(withId(R.id.FuelStationList)).perform(RecyclerViewActions.scrollToPosition(activity.recyclerView.getAdapter().getItemCount() - 1));
+    }
+
+    @Test
+    public void bottomButtons(){
+        // провер€ем, правильно измен€ютс€ объекты в нижней панели при нажатии
+
+        // переход на главную страницу
+        onView(withId(R.id.navigation_home)).perform(click());
+        // проверка: видна ли надпись "«аправки" на иконке главной страницы
+        onView(withId(R.id.navigation_home)).check(matches(ViewMatchers.isSelected()));
+        // проверка: спр€таны ли надписи других иконок
+        onView(withId(R.id.navigation_dashboard)).check(matches(not(ViewMatchers.isSelected())));
+        onView(withId(R.id.navigation_notifications)).check(matches(not(ViewMatchers.isSelected())));
+        onView(withId(R.id.navigation_about)).check(matches(not(ViewMatchers.isSelected())));
+
+        // переход на страницу с картой
+        onView(withId(R.id.navigation_dashboard)).perform(click());
+        // проверка: видна ли надпись "Ќа карте" на иконке открытой страницы
+        onView(withId(R.id.navigation_dashboard)).check(matches(ViewMatchers.isSelected()));
+        // проверка: спр€таны ли надписи других иконок
+        onView(withId(R.id.navigation_home)).check(matches(not(ViewMatchers.isSelected())));
+        onView(withId(R.id.navigation_notifications)).check(matches(not(ViewMatchers.isSelected())));
+        onView(withId(R.id.navigation_about)).check(matches(not(ViewMatchers.isSelected())));
+
+        // переход на страницу с динамикой
+        onView(withId(R.id.navigation_notifications)).perform(click());
+        // проверка: видна ли надпись "ƒинамика" на иконке открытой страницы
+        onView(withId(R.id.navigation_notifications)).check(matches(ViewMatchers.isSelected()));
+        // проверка: спр€таны ли надписи других иконок
+        onView(withId(R.id.navigation_home)).check(matches(not(ViewMatchers.isSelected())));
+        onView(withId(R.id.navigation_dashboard)).check(matches(not(ViewMatchers.isSelected())));
+        onView(withId(R.id.navigation_about)).check(matches(not(ViewMatchers.isSelected())));
+
+        /*
+        // тест не сработает, т.к. раздел с информацией ещЄ не готов
+        // переход на страницу с информацией о приложении
+        onView(withId(R.id.navigation_about)).perform(click());
+        // проверка: видна ли надпись "»нформаци€" на иконке открытой страницы
+        onView(withId(R.id.navigation_about)).check(matches(ViewMatchers.isSelected()));
+        // проверка: спр€таны ли надписи других иконок
+        onView(withId(R.id.navigation_home)).check(matches(not(ViewMatchers.isSelected())));
+        onView(withId(R.id.navigation_dashboard)).check(matches(not(ViewMatchers.isSelected())));
+        onView(withId(R.id.navigation_notifications)).check(matches(not(ViewMatchers.isSelected())));
+        */
+    }
+
+    @Test
+    public void topButtons() {
+
+        // переход на главную страницу
+        onView(withId(R.id.navigation_home)).perform(click());
+
+        // провер€ем, что варианты топлива измен€ютс€ при нажатии (ставитс€ галочка)
+        // проверка первой кнопки
+        onView(withId(R.id.choice_chip)).perform(click()).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip2)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip3)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip4)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip5)).check(matches(ViewMatchers.isEnabled()));
+
+        // проверка второй кнопки
+        onView(withId(R.id.choice_chip2)).perform(click()).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip3)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip4)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip5)).check(matches(ViewMatchers.isEnabled()));
+
+        // проверка третьей кнопки
+        onView(withId(R.id.choice_chip3)).perform(click()).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip2)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip4)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip5)).check(matches(ViewMatchers.isEnabled()));
+
+        // проверка четвЄртой кнопки
+        onView(withId(R.id.choice_chip4)).perform(click()).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip2)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip3)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip5)).check(matches(ViewMatchers.isEnabled()));
+
+        // проверка п€той кнопки
+        onView(withId(R.id.choice_chip5)).perform(click()).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip2)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip3)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip4)).check(matches(ViewMatchers.isEnabled()));
+        onView(withId(R.id.choice_chip)).check(matches(ViewMatchers.isEnabled()));
+    }
+
+    @Test
+    public void recyclerViewData() {
+        // переход на главную страницу
+        onView(withId(R.id.navigation_home)).perform(click());
+
+        // провер€ем, есть ли данные в списке
+        /*onView(withId(R.id.brand)).check(matches(not(withText("Ѕренд"))));
+        onView(withId(R.id.address)).check(matches(not(withText("јдрес"))));
+        onView(withId(R.id.price)).check(matches(not(withText("÷ена"))));
+        onView(withId(R.id.distance)).check(matches(not(withText("–ассто€ние"))));*/
+    }
+
+    @Test
+    public void ifDataIsCorrect() {
+        // переход на главную страницу
+        onView(withId(R.id.navigation_home)).perform(click());
+
+        // провер€ем, корректные ли данные показаны в списке
+        // цена и рассто€ние должны быть больше нул€
+        /*onView(withId(R.id.price)).check(matches(not(withText("0"))));
+        onView(withId(R.id.price)).check(matches(not(withText("-50"))));
+        onView(withId(R.id.price)).check(matches(not(withText("-15"))));
+        onView(withId(R.id.distance)).check(matches(not(withText("0"))));
+        onView(withId(R.id.distance)).check(matches(not(withText("-50"))));
+        onView(withId(R.id.distance)).check(matches(not(withText("-10000"))));*/
     }
 }
