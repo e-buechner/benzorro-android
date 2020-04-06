@@ -2,6 +2,7 @@ package com.vitkaloff.benzorro;
 
 import android.content.Context;
 
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -63,7 +64,6 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void scrollView(){
-        // провер€ем, что объекты на нижней панели и верхние кнопки отображаютс€ во врем€ пролистывани€ на главной странице
         //onView(withId(R.id.FuelStationList)).perform(scrollTo());
         //onView(withId(R.id.FuelStationList)).perform(RecyclerViewActions.scrollToPosition(activity.recyclerView.getAdapter().getItemCount() - 1));
     }
@@ -99,9 +99,6 @@ public class ExampleInstrumentedTest {
         onView(withId(R.id.navigation_dashboard)).check(matches(not(ViewMatchers.isSelected())));
         onView(withId(R.id.navigation_about)).check(matches(not(ViewMatchers.isSelected())));
 
-        /*
-        // тест не сработает, т.к. раздел с информацией ещЄ не готов
-        // переход на страницу с информацией о приложении
         onView(withId(R.id.navigation_about)).perform(click());
         // проверка: видна ли надпись "»нформаци€" на иконке открытой страницы
         onView(withId(R.id.navigation_about)).check(matches(ViewMatchers.isSelected()));
@@ -109,7 +106,6 @@ public class ExampleInstrumentedTest {
         onView(withId(R.id.navigation_home)).check(matches(not(ViewMatchers.isSelected())));
         onView(withId(R.id.navigation_dashboard)).check(matches(not(ViewMatchers.isSelected())));
         onView(withId(R.id.navigation_notifications)).check(matches(not(ViewMatchers.isSelected())));
-        */
     }
 
     @Test
@@ -158,13 +154,12 @@ public class ExampleInstrumentedTest {
     @Test
     public void recyclerViewData() {
         // переход на главную страницу
-        onView(withId(R.id.navigation_home)).perform(click());
+        //onView(withId(R.id.navigation_home)).perform(click());
 
-        // провер€ем, есть ли данные в списке
-        /*onView(withId(R.id.brand)).check(matches(not(withText("Ѕренд"))));
-        onView(withId(R.id.address)).check(matches(not(withText("јдрес"))));
-        onView(withId(R.id.price)).check(matches(not(withText("÷ена"))));
-        onView(withId(R.id.distance)).check(matches(not(withText("–ассто€ние"))));*/
+        onView(withId(R.id.brand)).check(matches(not(withText("Бренд"))));
+        onView(withId(R.id.address)).check(matches(not(withText("Адрес"))));
+        onView(withId(R.id.price)).check(matches(not(withText("Цена"))));
+        onView(withId(R.id.distance)).check(matches(not(withText("Расстояние"))));
     }
 
     @Test
@@ -172,13 +167,14 @@ public class ExampleInstrumentedTest {
         // переход на главную страницу
         onView(withId(R.id.navigation_home)).perform(click());
 
-        // провер€ем, корректные ли данные показаны в списке
-        // цена и рассто€ние должны быть больше нул€
-        /*onView(withId(R.id.price)).check(matches(not(withText("0"))));
+        onView(withId(R.id.nestedScrollView))
+                .perform(RecyclerView.actionOnItemAtPosition(3, click()));
+
+        onView(withId(R.id.price)).check(matches(not(withText("0"))));
         onView(withId(R.id.price)).check(matches(not(withText("-50"))));
         onView(withId(R.id.price)).check(matches(not(withText("-15"))));
         onView(withId(R.id.distance)).check(matches(not(withText("0"))));
         onView(withId(R.id.distance)).check(matches(not(withText("-50"))));
-        onView(withId(R.id.distance)).check(matches(not(withText("-10000"))));*/
+        onView(withId(R.id.distance)).check(matches(not(withText("-10000"))));
     }
 }
