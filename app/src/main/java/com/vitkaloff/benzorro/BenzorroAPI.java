@@ -7,8 +7,6 @@ import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.Query;
 
-import com.vitkaloff.benzorro.BuildConfig;
-
 public interface BenzorroAPI {
 
     String versionName = BuildConfig.VERSION_NAME;
@@ -18,5 +16,12 @@ public interface BenzorroAPI {
     @GET("stations/")
     Call<List<FuelStation>> getStations(@Query("lon") Double lon, @Query("lat") Double lat);
 
+    @GET("brands/")
+    Call<List<Brand>> getBrands();
 
+    @GET("services/")
+    Call<List<Service>> getServices();
+
+    @GET("fuels/")
+    Call<List<Fuel>> getFuels();
 }

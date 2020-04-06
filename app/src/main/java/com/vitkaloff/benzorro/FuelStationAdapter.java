@@ -1,24 +1,35 @@
 package com.vitkaloff.benzorro;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.vitkaloff.benzorro.ui.home.HomeFragment;
-import com.vitkaloff.benzorro.Price;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import static java.security.AccessController.getContext;
 
 public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.ViewHolder> {
     private LayoutInflater inflater;
     private List<FuelStation> fuelStations;
     private Price price;
+    private View.OnClickListener mOnItemClickListener;
+
+    private static final String FUELS_LIST = "FuelsList";
+    private static final String BRANDS_LIST = "BrandsList";
+    private static final String SERVICES_LIST = "ServicesList";
 
     public FuelStationAdapter(HomeFragment fragment, List<FuelStation> fuelStations) {
         this.fuelStations = fuelStations;
@@ -38,14 +49,26 @@ public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.
         holder.imageView.setImageResource(fuelstation.getLogo());
         holder.brandView.setText("Газпромнефть");
         holder.addressView.setText(fuelstation.getAddr());
-        BigDecimal distance = BigDecimal.valueOf(fuelstation.getDistance() / 1000).setScale(2,BigDecimal.ROUND_HALF_DOWN);
+        BigDecimal distance = BigDecimal.valueOf(fuelstation.getDistance() / 1000).setScale(2, BigDecimal.ROUND_HALF_DOWN);
         holder.distanceView.setText(distance +" км");
-        holder.priceView.setText(0 + " \u20BD");
+        String priceStr;
+        try {
+            priceStr = fuelstation.getPrices().get(0).getPrice().toString();
+        }
+        catch (IndexOutOfBoundsException e)
+        {
+            priceStr = "-";
+        }
+        holder.priceView.setText(priceStr + " \u20BD");
     }
 
     @Override
     public int getItemCount() {
         return fuelStations.size();
+    }
+
+    public void setOnItemClickListener(View.OnClickListener itemClickListener) {
+        mOnItemClickListener = itemClickListener;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -58,6 +81,9 @@ public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.
             addressView = view.findViewById(R.id.address);
             distanceView = view.findViewById(R.id.distance);
             priceView = view.findViewById(R.id.price);
+
+            itemView.setTag(this);
+            itemView.setOnClickListener(mOnItemClickListener);
         }
     }
 }

@@ -4,5 +4,11 @@
     <string name="title_dashboard">На карте</string>
     <string name="title_home">Заправки</string>
     <string name="title_notifications">Динамика</string>
+    <string name="title_settings">Настройки</string>
+    <string name="prices_unavailable">Нет информации о ценах на этом обьекте</string>
+    <string name="google_play_link">Загрузите приложение</string>
+    <string name="not_implemented">Пока недоступно. Следите за обновлениями!</string>
     <string name="title_about">О приложении</string>
+    <string name="permissions_granted">Разрешения предоставлены</string>
+    <string name="permissions_not_granted">Разрешения не предоставлены</string>
 </resources>

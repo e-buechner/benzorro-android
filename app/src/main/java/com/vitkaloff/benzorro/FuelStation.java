@@ -92,7 +92,7 @@ public class FuelStation {
     }
 
     public int getLogo(){
-        return R.drawable.ic_settings_black_24dp;
+        return R.drawable.brand_1;
     }
 
     public List<Integer> getServices() {

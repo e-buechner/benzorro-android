@@ -1,5 +1,7 @@
 package com.vitkaloff.benzorro.ui.notifications;
 
+import com.vitkaloff.benzorro.R;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -10,7 +12,7 @@ public class NotificationsViewModel extends ViewModel {
 
     public NotificationsViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is notifications fragment");
+        mText.setValue("Пока недоступно. Следите за обновлениями!");
     }
 
     public LiveData<String> getText() {
