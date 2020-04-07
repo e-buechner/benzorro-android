@@ -101,6 +101,10 @@ public class StationCard extends Fragment {
         app_download.setMovementMethod(LinkMovementMethod.getInstance());
         app_download.setText(Html.fromHtml(play_link));
 
+        if (getBrand(station).getAndroidAppId().equals("")) {
+            app_download.setVisibility(View.GONE);
+        }
+
         String price_text = "";
         for (Price price : station.getPrices()) {
             Fuel fuel = getFuel(price.getFuel());
@@ -123,11 +127,11 @@ public class StationCard extends Fragment {
             price_text = price_text + name + ":   <b>" + price.getPrice().toString() + ' ' + curr + "</b><br><br>";
         }
 
+        price_view.setText(Html.fromHtml(price_text));
         if (station.getPrices().size() == 0)
         {
             price_view.setText(R.string.prices_unavailable);
         }
-        price_view.setText(Html.fromHtml(price_text));
 
         FloatingActionButton fab = root.findViewById(R.id.openRouteMap);
         fab.setOnClickListener(v -> {

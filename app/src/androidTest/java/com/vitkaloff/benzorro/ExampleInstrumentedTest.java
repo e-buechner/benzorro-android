@@ -1,24 +1,52 @@
 package com.vitkaloff.benzorro;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.view.View;
+
+import com.vitkaloff.benzorro.ui.home.HomeFragment;
 
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.Espresso;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.RootMatchers;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.Espresso.pressBack;
+import static androidx.test.espresso.Espresso.pressBackUnconditionally;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.Intents.intended;
+import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 
+import static java.util.EnumSet.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.*;
 import org.junit.Rule;
+
+import java.util.Random;
+
 import androidx.test.rule.ActivityTestRule;
 import static org.hamcrest.Matchers.not;
 
@@ -167,14 +195,96 @@ public class ExampleInstrumentedTest {
         // переход на главную страницу
         onView(withId(R.id.navigation_home)).perform(click());
 
-        onView(withId(R.id.nestedScrollView))
-                .perform(RecyclerView.actionOnItemAtPosition(3, click()));
-
         onView(withId(R.id.price)).check(matches(not(withText("0"))));
         onView(withId(R.id.price)).check(matches(not(withText("-50"))));
         onView(withId(R.id.price)).check(matches(not(withText("-15"))));
         onView(withId(R.id.distance)).check(matches(not(withText("0"))));
         onView(withId(R.id.distance)).check(matches(not(withText("-50"))));
         onView(withId(R.id.distance)).check(matches(not(withText("-10000"))));
+    }
+
+    @Test
+    public void checkStationScreenObjectVisibility() {
+        onView(withId(R.id.navigation_home)).perform(click());
+        onView(withId(R.id.FuelStationList))
+                .perform(RecyclerViewActions.actionOnItemAtPosition((int) (Math.random()*10), click()));
+        onView(withId(R.id.address)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.logo)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.distance)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.brand)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.Prices)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+
+        onView(withId(R.id.phone)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+        onView(withId(R.id.email)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+        onView(withId(R.id.website)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+
+        onView(withId(R.id.shareStation)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.toFavourites)).check(matches(isCompletelyDisplayed()));
+
+        onView(withId(R.id.openRouteMap)).check(matches(isCompletelyDisplayed()));
+    }
+
+    @Test
+    public void checkStationScreenClickable() {
+        onView(withId(R.id.navigation_home)).perform(click());
+        onView(withId(R.id.FuelStationList))
+                .perform(RecyclerViewActions.actionOnItemAtPosition((int) (Math.random()*10), click()));
+
+        onView(withId(R.id.address)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.logo)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.distance)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.brand)).check(matches(isCompletelyDisplayed()));
+        onView(withId(R.id.Prices)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+
+        onView(withId(R.id.phone)).check(matches(isClickable()));
+        onView(withId(R.id.website)).check(matches(isClickable()));
+        onView(withId(R.id.email)).check(matches(isClickable()));
+        onView(withId(R.id.openRouteMap)).check(matches(isClickable()));
+        onView(withId(R.id.toFavourites)).check(matches(isClickable()));
+        onView(withId(R.id.shareStation)).check(matches(isClickable()));
+
+        onView(withId(R.id.toFavourites)).perform(click());
+        onView(withId(R.id.shareStation)).perform(click());
+    }
+
+    @Test
+    public void checkStationObjectDataIntegrity() {
+        onView(withId(R.id.navigation_home)).perform(click());
+        onView(withId(R.id.FuelStationList))
+                .perform(RecyclerViewActions.actionOnItemAtPosition((int) (Math.random()*10), click()));
+
+        onView(withId(R.id.address)).check(matches(not(withText(""))));
+        onView(withId(R.id.distance)).check(matches(not(withText(""))));
+        onView(withId(R.id.brand)).check(matches(not(withText(""))));
+        onView(withId(R.id.Prices)).check(matches(not(withText(""))));
+
+        Intents.init();
+
+        Intent stubIntent = new Intent();
+        Instrumentation.ActivityResult stubResult = new Instrumentation.ActivityResult(Activity.RESULT_OK, stubIntent);
+
+        intending(hasAction(Intent.ACTION_VIEW)).respondWith(stubResult);
+        onView(withId(R.id.phone)).perform(click());
+        intended(Matchers.allOf(hasAction(Intent.ACTION_VIEW)));
+        Intents.release();
+
+        Intents.init();
+        intending(hasAction(Intent.ACTION_VIEW)).respondWith(stubResult);
+        onView(withId(R.id.email)).perform(click());
+        intended(Matchers.allOf(hasAction(Intent.ACTION_VIEW)));
+        Intents.release();
+
+        Intents.init();
+        intending(hasAction(Intent.ACTION_VIEW)).respondWith(stubResult);
+        onView(withId(R.id.website)).perform(click());
+        intended(Matchers.allOf(hasAction(Intent.ACTION_VIEW)));
+        Intents.release();
+
+        Intents.init();
+        intending(hasAction(Intent.ACTION_VIEW)).respondWith(stubResult);
+        onView(withId(R.id.openRouteMap)).perform(click());
+        intended(Matchers.allOf(hasAction(Intent.ACTION_VIEW)));
+
+        Intents.release();
     }
 }
