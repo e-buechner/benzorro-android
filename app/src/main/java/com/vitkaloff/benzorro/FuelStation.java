@@ -91,10 +91,6 @@ public class FuelStation {
         this.prices = prices;
     }
 
-    public int getLogo(){
-        return R.drawable.brand_1;
-    }
-
     public List<Integer> getServices() {
         return services;
     }

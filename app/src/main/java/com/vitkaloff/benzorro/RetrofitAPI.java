@@ -18,7 +18,7 @@ public class RetrofitAPI extends Application {
                 .baseUrl("https://api-dev.benzorro.ru/api/") //Базовая часть адреса
                 .addConverterFactory(GsonConverterFactory.create()) //Конвертер, необходимый для преобразования JSON'а в объекты
                 .build();
-        benzorroAPI = retrofit.create(BenzorroAPI.class); //Создаем объект, при помощи которого будем выполнять запросы
+        benzorroAPI = retrofit.create(BenzorroAPI.class);
     }
 
     public static BenzorroAPI getApi() {

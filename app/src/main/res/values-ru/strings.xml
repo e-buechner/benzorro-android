@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Benzorro</string>
-    <string name="title_dashboard">На карте</string>
+    <string name="title_dashboard">Мое</string>
     <string name="title_home">Заправки</string>
     <string name="title_notifications">Динамика</string>
     <string name="title_settings">Настройки</string>

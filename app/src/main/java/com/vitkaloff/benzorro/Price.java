@@ -15,6 +15,9 @@ public class Price {
     @Expose
     private String curr;
 
+    public Price(int fuel, double price, String curr) {
+    }
+
     public Integer getFuel() {
         return fuel;
     }

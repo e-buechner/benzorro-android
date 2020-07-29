@@ -1,53 +1,52 @@
 package com.vitkaloff.benzorro;
 
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.dynamic.IFragmentWrapper;
 import com.vitkaloff.benzorro.ui.home.HomeFragment;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Objects;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import static java.security.AccessController.getContext;
-
 public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.ViewHolder> {
     private LayoutInflater inflater;
-    private List<FuelStation> fuelStations;
+    private List<FuelStation> fuelStationList;
+    private SparseArray<Brand> brands;
     private Price price;
     private View.OnClickListener mOnItemClickListener;
 
-    private static final String FUELS_LIST = "FuelsList";
-    private static final String BRANDS_LIST = "BrandsList";
-    private static final String SERVICES_LIST = "ServicesList";
 
-    public FuelStationAdapter(HomeFragment fragment, List<FuelStation> fuelStations) {
-        this.fuelStations = fuelStations;
+    public FuelStationAdapter(HomeFragment fragment, List<FuelStation> fuelStationList) {
+        this.fuelStationList = fuelStationList;
         this.inflater = LayoutInflater.from(fragment.getActivity());
     }
     @Override
     public FuelStationAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = inflater.inflate(R.layout.fuel_list, parent, false);
+        View view = inflater.inflate(R.layout.station_list, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(FuelStationAdapter.ViewHolder holder, int position) {
-        FuelStation fuelstation = fuelStations.get(position);
-        holder.imageView.setImageResource(fuelstation.getLogo());
-        holder.imageView.setImageResource(fuelstation.getLogo());
-        holder.brandView.setText("Газпромнефть");
+    public void onBindViewHolder(FuelStationAdapter.ViewHolder holder, int id) {
+        brands = SharedData.getBrands(inflater.getContext());
+        FuelStation fuelstation = fuelStationList.get(id);
+        Brand brand = brands.get(fuelstation.getBrand());
+        String image_url = brand.getLogo();
+        Glide.with(inflater.getContext())
+                .load(image_url)
+                .placeholder(R.drawable.ic_baseline_station_24)
+                .into(holder.imageView);
+        //holder.imageView.setImageResource(R.drawable.brand_1);
+        holder.brandView.setText(brand.getName());
         holder.addressView.setText(fuelstation.getAddr());
         BigDecimal distance = BigDecimal.valueOf(fuelstation.getDistance() / 1000).setScale(2, BigDecimal.ROUND_HALF_DOWN);
         holder.distanceView.setText(distance +" км");
@@ -64,7 +63,7 @@ public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.
 
     @Override
     public int getItemCount() {
-        return fuelStations.size();
+        return fuelStationList.size();
     }
 
     public void setOnItemClickListener(View.OnClickListener itemClickListener) {
@@ -80,7 +79,7 @@ public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.
             brandView = view.findViewById(R.id.brand);
             addressView = view.findViewById(R.id.address);
             distanceView = view.findViewById(R.id.distance);
-            priceView = view.findViewById(R.id.price);
+            priceView = view.findViewById(R.id.priceView);
 
             itemView.setTag(this);
             itemView.setOnClickListener(mOnItemClickListener);

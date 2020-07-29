@@ -4,51 +4,39 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.view.View;
 
-import com.vitkaloff.benzorro.ui.home.HomeFragment;
-
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.contrib.RecyclerViewActions;
-import androidx.test.espresso.intent.Intents;
-import androidx.test.espresso.matcher.RootMatchers;
-import androidx.test.espresso.matcher.ViewMatchers;
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
+
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.Espresso.pressBack;
-import static androidx.test.espresso.Espresso.pressBackUnconditionally;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
-import static androidx.test.espresso.matcher.ViewMatchers.*;
-
-import static java.util.EnumSet.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.junit.Assert.*;
-import org.junit.Rule;
-
-import java.util.Random;
-
-import androidx.test.rule.ActivityTestRule;
+import static androidx.test.espresso.matcher.ViewMatchers.Visibility.VISIBLE;
+import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.AllOf.allOf;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -73,7 +61,7 @@ public class ExampleInstrumentedTest {
         // главна€ страница
         onView(withId(R.id.nav_view)).check(matches(ViewMatchers.isDisplayed()));
         onView(withId(R.id.nav_host_fragment)).check(matches(ViewMatchers.isDisplayed()));
-        onView(withId(R.id.choice_chip_group)).check(matches(ViewMatchers.isDisplayed()));
+        onView(withId(R.id.services)).check(matches(ViewMatchers.isDisplayed()));
         onView(withId(R.id.choice_chip)).check(matches(ViewMatchers.isDisplayed()));
         onView(withId(R.id.choice_chip2)).check(matches(ViewMatchers.isDisplayed()));
         onView(withId(R.id.choice_chip3)).check(matches(ViewMatchers.isDisplayed()));
@@ -92,8 +80,8 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void scrollView(){
-        //onView(withId(R.id.FuelStationList)).perform(scrollTo());
-        //onView(withId(R.id.FuelStationList)).perform(RecyclerViewActions.scrollToPosition(activity.recyclerView.getAdapter().getItemCount() - 1));
+        onView(withId(R.id.FuelStationList)).perform(scrollTo());
+        onView(withId(R.id.FuelStationList)).perform(RecyclerViewActions.scrollToPosition(99));
     }
 
     @Test
@@ -182,12 +170,11 @@ public class ExampleInstrumentedTest {
     @Test
     public void recyclerViewData() {
         // переход на главную страницу
-        //onView(withId(R.id.navigation_home)).perform(click());
-
-        onView(withId(R.id.brand)).check(matches(not(withText("Бренд"))));
-        onView(withId(R.id.address)).check(matches(not(withText("Адрес"))));
-        onView(withId(R.id.price)).check(matches(not(withText("Цена"))));
-        onView(withId(R.id.distance)).check(matches(not(withText("Расстояние"))));
+        onView(withId(R.id.navigation_home)).perform(click());
+        //onView(allOf(withId(R.id.brand))).check(matches(not(withText("Бренд"))));
+        //onView(allOf(withId(R.id.address))).check(matches(not(withText("Адрес"))));
+        //onView(allOf(withId(R.id.price))).check(matches(not(withText("Цена"))));
+        //onView(allOf(withId(R.id.distance))).check(matches(not(withText("Расстояние"))));
     }
 
     @Test
@@ -195,12 +182,7 @@ public class ExampleInstrumentedTest {
         // переход на главную страницу
         onView(withId(R.id.navigation_home)).perform(click());
 
-        onView(withId(R.id.price)).check(matches(not(withText("0"))));
-        onView(withId(R.id.price)).check(matches(not(withText("-50"))));
-        onView(withId(R.id.price)).check(matches(not(withText("-15"))));
-        onView(withId(R.id.distance)).check(matches(not(withText("0"))));
-        onView(withId(R.id.distance)).check(matches(not(withText("-50"))));
-        onView(withId(R.id.distance)).check(matches(not(withText("-10000"))));
+        onView(allOf(withId(R.id.price), withEffectiveVisibility(VISIBLE))).check(matches(not(withText("0"))));
     }
 
     @Test
@@ -212,11 +194,11 @@ public class ExampleInstrumentedTest {
         onView(withId(R.id.logo)).check(matches(isCompletelyDisplayed()));
         onView(withId(R.id.distance)).check(matches(isCompletelyDisplayed()));
         onView(withId(R.id.brand)).check(matches(isCompletelyDisplayed()));
-        onView(withId(R.id.Prices)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+        onView(withId(R.id.Prices)).check(matches(withEffectiveVisibility(VISIBLE)));
 
-        onView(withId(R.id.phone)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
-        onView(withId(R.id.email)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
-        onView(withId(R.id.website)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+        onView(withId(R.id.phone)).check(matches(withEffectiveVisibility(VISIBLE)));
+        onView(withId(R.id.email)).check(matches(withEffectiveVisibility(VISIBLE)));
+        onView(withId(R.id.website)).check(matches(withEffectiveVisibility(VISIBLE)));
 
         onView(withId(R.id.shareStation)).check(matches(isCompletelyDisplayed()));
         onView(withId(R.id.toFavourites)).check(matches(isCompletelyDisplayed()));
@@ -234,7 +216,7 @@ public class ExampleInstrumentedTest {
         onView(withId(R.id.logo)).check(matches(isCompletelyDisplayed()));
         onView(withId(R.id.distance)).check(matches(isCompletelyDisplayed()));
         onView(withId(R.id.brand)).check(matches(isCompletelyDisplayed()));
-        onView(withId(R.id.Prices)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)));
+        onView(withId(R.id.Prices)).check(matches(withEffectiveVisibility(VISIBLE)));
 
         onView(withId(R.id.phone)).check(matches(isClickable()));
         onView(withId(R.id.website)).check(matches(isClickable()));
@@ -286,5 +268,23 @@ public class ExampleInstrumentedTest {
         intended(Matchers.allOf(hasAction(Intent.ACTION_VIEW)));
 
         Intents.release();
+    }
+
+    public static Matcher<View> withIndex(final Matcher<View> matcher, final int index) {
+        return new TypeSafeMatcher<View>() {
+            int currentIndex = 0;
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("with index: ");
+                description.appendValue(index);
+                matcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                return matcher.matches(view) && currentIndex++ == index;
+            }
+        };
     }
 }

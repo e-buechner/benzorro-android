@@ -1,9 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">Benzorro</string>
     <string name="title_home">Stations</string>
-    <string name="title_dashboard">On map</string>
+    <string name="title_dashboard">Personal</string>
     <string name="title_notifications">Price trends</string>
-    <string name="title_about">About</string>
+    <string name="title_about">Settings</string>
 
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="prices_unavailable">No price data for this object</string>

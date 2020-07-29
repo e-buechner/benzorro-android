@@ -4,20 +4,30 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.app.ActionBar;
+import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,14 +35,18 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
@@ -40,25 +54,33 @@ import com.google.gson.reflect.TypeToken;
 import com.vitkaloff.benzorro.Brand;
 import com.vitkaloff.benzorro.Fuel;
 import com.vitkaloff.benzorro.FuelStation;
+import com.vitkaloff.benzorro.FuelStationAdapter;
 import com.vitkaloff.benzorro.Price;
+import com.vitkaloff.benzorro.PriceAdapter;
 import com.vitkaloff.benzorro.R;
 import com.vitkaloff.benzorro.Service;
+import com.vitkaloff.benzorro.SharedData;
 
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.TimeZone;
 
 public class StationCard extends Fragment {
 
     private StationCardViewModel mViewModel;
     private AdView adView;
-    private static final String FUEL_STATIONS_LIST = "FuelStationList";
-    private static final String FUELS_LIST = "FuelsList";
-    private static final String BRANDS_LIST = "BrandsList";
-    private static final String SERVICES_LIST = "ServicesList";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -66,80 +88,106 @@ public class StationCard extends Fragment {
         View root = inflater.inflate(R.layout.station_card_fragment, container, false);
         setHasOptionsMenu(true);
 
-        List<FuelStation> fuelStations = getFuelStationsFromSharedPrefs();
-        List<Brand> brands = getBrandsFromSharedPrefs();
-        List<Fuel> fuels = getFuelsFromSharedPrefs();
-        List<Service> services = getServicesFromSharedPrefs();
+        SparseArray<FuelStation> fuelStations = SharedData.getStations(requireActivity());
+        SparseArray<Brand> brands = SharedData.getBrands(requireActivity());
+        SparseArray<Fuel> fuels = SharedData.getFuel(requireActivity());
+        SparseArray<Service> services = SharedData.getServices(requireActivity());
 
+        int station_id = getArguments().getInt("station_id", 0);
+        boolean is_installed = false;
+        PackageManager pm = getActivity().getPackageManager();
 
-        int station_position = getArguments().getInt("station_position", 0);
-
-        FuelStation station = fuelStations.get(station_position);
+        FuelStation station = fuelStations.get(station_id);
+        Brand brand = brands.get(station.getBrand());
 
         TextView addressView = root.findViewById(R.id.address);
-        TextView brandView = root.findViewById(R.id.brand);
-        ImageView logoView = root.findViewById(R.id.logo);
-        TextView distanceView = root.findViewById(R.id.distance);
-        TextView phone = root.findViewById(R.id.phone);
-        TextView email = root.findViewById(R.id.email);
-        TextView web = root.findViewById(R.id.website);
-        TextView app_download = root.findViewById(R.id.app_download);
-        TextView price_view = root.findViewById(R.id.Prices);
-
         addressView.setText(station.getAddr());
-        brandView.setText(getBrand(station).getName());
-        logoView.setImageResource(station.getLogo());
+
+        TextView brandView = root.findViewById(R.id.brand);
+        brandView.setText(brand.getName());
+
+        ImageView logoView = root.findViewById(R.id.logo);
+        Glide.with(this).load(brand.getLogo()).into(logoView);
+
+        TextView distanceView = root.findViewById(R.id.distance);
         BigDecimal distance = BigDecimal.valueOf(station.getDistance() / 1000).setScale(2, BigDecimal.ROUND_HALF_DOWN);
         distanceView.setText(distance.toString() + " км");
-        phone.setText(getBrand(station).getPhone());
-        email.setText(getBrand(station).getEmail());
-        web.setText(getBrand(station).getUrl());
 
-        String play_link = "https://play.google.com/store/apps/details?id=" + getBrand(station).getAndroidAppId();
-        play_link = "<a href=" + '"' + play_link + '"' + '>' + getString(R.string.google_play_link) + "</a>";
-        app_download.setClickable(true);
-        app_download.setMovementMethod(LinkMovementMethod.getInstance());
-        app_download.setText(Html.fromHtml(play_link));
+        ChipGroup service_group = root.findViewById(R.id.services_group);
+        List<Integer> services_list = station.getServices();
 
-        if (getBrand(station).getAndroidAppId().equals("")) {
-            app_download.setVisibility(View.GONE);
+        for (int i=0; i<services_list.size(); i++ ) {
+            Chip chip = new Chip(getActivity());
+            String label = services.get(services_list.get(i)).getLogo();
+            setServiceChip(chip, service_group, label);
         }
 
-        String price_text = "";
-        for (Price price : station.getPrices()) {
-            Fuel fuel = getFuel(price.getFuel());
-            String name;
-            if (fuel.getBrandName().equals("")) {
-                name = fuel.getType();
-            }
-            else {
-                name = fuel.getBrandName();
-            }
+        RecyclerView price_list = (RecyclerView) root.findViewById(R.id.priceList);
+        PriceAdapter adapter = new PriceAdapter(this, station.getPrices());
+        price_list.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        price_list.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
 
-            String curr;
-            if (price.getCurr().equals("RUB")){
-                curr = "₽";
+        Button open_app = root.findViewById(R.id.open_app);
+        String app_id = brand.getAndroidAppId();
+        if (app_id.equals("")) {
+            open_app.setVisibility(View.GONE);
+        } else {
+            if (isPackageInstalled(app_id, pm)) {
+                    open_app.setText("Открыть приложение");
+            } else {
+                open_app.setText("Установить приложение");
             }
-            else{
-                curr = price.getCurr();
-            }
-
-            price_text = price_text + name + ":   <b>" + price.getPrice().toString() + ' ' + curr + "</b><br><br>";
         }
+        open_app.setOnClickListener(v -> {
+            if (isPackageInstalled(app_id, pm)) {
+                Intent launchIntent = pm.getLaunchIntentForPackage(app_id);
+                getActivity().startActivity(launchIntent);
+            } else {
+                openPlayStore(getActivity(), app_id);
+            }
+        });
 
-        price_view.setText(Html.fromHtml(price_text));
-        if (station.getPrices().size() == 0)
-        {
-            price_view.setText(R.string.prices_unavailable);
-        }
+        Button call = root.findViewById(R.id.call);
+        call.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", brands.get(station.getBrand()).getPhone(), null));
+            if (intent.resolveActivity(pm) != null) {
+                startActivity(intent);
+            } else {
+                Snackbar.make(requireActivity().findViewById(android.R.id.content), "Приложения для звонков не найдены!\nЗвоните по номеру " + brand.getPhone(), Snackbar.LENGTH_LONG).show();
+            }
+        });
 
+        Button mail = root.findViewById(R.id.mail);
+        mail.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("mailto:" + brand.getEmail())); // only email apps should handle this
+            if (intent.resolveActivity(pm) != null) {
+                startActivity(intent);
+            } else {
+                Snackbar.make(requireActivity().findViewById(android.R.id.content), "Почтовые приложения не найдены!\nОтправьте письмо по адресу " + brand.getEmail(), Snackbar.LENGTH_LONG).show();
+            }
+        });
+
+        Button web = root.findViewById(R.id.web);
+        web.setOnClickListener(v -> {
+            Uri webpage = Uri.parse(brand.getUrl());
+            Intent intent = new Intent(Intent.ACTION_VIEW, webpage);
+            if (intent.resolveActivity(pm) != null) {
+                startActivity(intent);
+            } else {
+                Snackbar.make(requireActivity().findViewById(android.R.id.content), "Для просмотра сайта установите браузер\n" + brand.getUrl(), Snackbar.LENGTH_LONG).show();
+            }
+        });
+
+        // событие нажатия кнопки навигации
         FloatingActionButton fab = root.findViewById(R.id.openRouteMap);
         fab.setOnClickListener(v -> {
-            Uri geo = Uri.parse("geo:0,0?q=" + station.getLat().toString() + ',' + station.getLon().toString() + "(" + Uri.encode(getBrand(station).getName()) + ")");
-            Log.d("@@@@@@@@", geo.toString());
+            Uri geo = Uri.parse("geo:0,0?q=" + station.getLat().toString() + ',' + station.getLon().toString() + "(" + Uri.encode(brand.getName() + ")"));
             openMaps(geo);
         });
 
+        // инициализируем рекламу
         FrameLayout adContainerView = root.findViewById(R.id.ad_view_container);
         adView = new AdView(getContext());
         adView.setAdUnitId("ca-app-pub-3940256099942544/6300978111");
@@ -163,42 +211,76 @@ public class StationCard extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), getText(R.string.not_implemented), Snackbar.LENGTH_LONG).show();
+        Snackbar.make(requireActivity().findViewById(android.R.id.content), getText(R.string.not_implemented), Snackbar.LENGTH_LONG).show();
         return super.onOptionsItemSelected(item);
     }
 
-    private Brand getBrand(FuelStation station) {
-        List<Brand> brands = getBrandsFromSharedPrefs();
-        int id = station.getBrand();
-
-        for (Brand brand : brands) {
-            if (brand.getId() == id) {
-                return brand;
-            }
+    private boolean isPackageInstalled(String packageName, PackageManager packageManager) {
+        try {
+            packageManager.getPackageInfo(packageName, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
         }
-        throw new NoSuchElementException();
     }
 
-    private Service getService(Integer id) {
-        List<Service> services = getServicesFromSharedPrefs();
+    public static void openPlayStore(Context context, String app_id) {
+        Intent storeIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("market://details?id=" + app_id));
+        boolean marketFound = false;
 
-        for (Service service : services) {
-            if (service.getId().equals(id)) {
-                return service;
+        // find all applications able to handle our rateIntent
+        final List<ResolveInfo> otherApps = context.getPackageManager()
+                .queryIntentActivities(storeIntent, 0);
+        for (ResolveInfo otherApp: otherApps) {
+            // look for Google Play application
+            if (otherApp.activityInfo.applicationInfo.packageName
+                    .equals("com.android.vending")) {
+
+                ActivityInfo otherAppActivity = otherApp.activityInfo;
+                ComponentName componentName = new ComponentName(
+                        otherAppActivity.applicationInfo.packageName,
+                        otherAppActivity.name
+                );
+                // make sure it does NOT open in the stack of your activity
+                storeIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                // task reparenting if needed
+                storeIntent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                // if the Google Play was already open in a search result
+                //  this make sure it still go to the app page you requested
+                storeIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                // this make sure only the Google Play app is allowed to
+                // intercept the intent
+                storeIntent.setComponent(componentName);
+                context.startActivity(storeIntent);
+                marketFound = true;
+                break;
+
             }
         }
-        throw new NoSuchElementException();
+
+        // if GP not present on device, open web browser
+        if (!marketFound) {
+            Intent webIntent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id="+app_id));
+            context.startActivity(webIntent);
+        }
     }
 
-    private Fuel getFuel(Integer id) {
-        List<Fuel> fuels = getFuelsFromSharedPrefs();
+    private void setServiceChip(Chip chip, ChipGroup group, String label) {
+        final float scale = getResources().getDisplayMetrics().scaledDensity;
+        int sp = (int)  (getResources().getDimensionPixelSize(R.dimen.min_sp) / scale * 2);
 
-        for (Fuel fuel : fuels) {
-            if (fuel.getId().equals(id)) {
-                return fuel;
-            }
-        }
-        throw new NoSuchElementException();
+        chip.setLayoutParams(new ViewGroup.LayoutParams(ChipGroup.LayoutParams.WRAP_CONTENT,
+                ChipGroup.LayoutParams.WRAP_CONTENT));
+        chip.setClickable(false);
+        chip.setTextColor(getResources().getColor(R.color.design_default_color_background));
+        chip.setBackgroundColor(getResources().getColor(R.color.design_default_color_background));
+        chip.setChipStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_background)));
+        chip.setChipStrokeWidth(sp);
+        chip.setChipBackgroundColor(ColorStateList.valueOf(getResources().getColor(R.color.colorPrimary)));
+        chip.setText(label);
+        group.addView(chip);
     }
 
     private void openMaps(Uri geoLocation) {
@@ -210,60 +292,12 @@ public class StationCard extends Fragment {
             startActivity(intent);
         }
         else {
-            Snackbar.make(Objects.requireNonNull(getActivity()).findViewById(android.R.id.content), "Нет приложений для навигации!", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(requireActivity().findViewById(android.R.id.content), "Нет приложений для навигации!", Snackbar.LENGTH_LONG).show();
         }
     }
 
-    private List<Service> getServicesFromSharedPrefs(){
-        Gson gson = new Gson();
-        List<Service> servicesFromShared;
-        SharedPreferences sharedPref = Objects.requireNonNull(getContext()).getSharedPreferences(SERVICES_LIST, Context.MODE_PRIVATE);
-        String jsonPreferences = sharedPref.getString(SERVICES_LIST, "");
-
-        Type type = new TypeToken<List<Service>>() {}.getType();
-        servicesFromShared = gson.fromJson(jsonPreferences, type);
-
-        return servicesFromShared;
-    }
-
-    private List<Fuel> getFuelsFromSharedPrefs(){
-        Gson gson = new Gson();
-        List<Fuel> fuelsFromShared;
-        SharedPreferences sharedPref = Objects.requireNonNull(getContext()).getSharedPreferences(FUELS_LIST, Context.MODE_PRIVATE);
-        String jsonPreferences = sharedPref.getString(FUELS_LIST, "");
-
-        Type type = new TypeToken<List<Fuel>>() {}.getType();
-        fuelsFromShared = gson.fromJson(jsonPreferences, type);
-
-        return fuelsFromShared;
-    }
-
-    private List<Brand> getBrandsFromSharedPrefs(){
-        Gson gson = new Gson();
-        List<Brand> brandsFromShared;
-        SharedPreferences sharedPref = Objects.requireNonNull(getContext()).getSharedPreferences(BRANDS_LIST, Context.MODE_PRIVATE);
-        String jsonPreferences = sharedPref.getString(BRANDS_LIST, "");
-
-        Type type = new TypeToken<List<Brand>>() {}.getType();
-        brandsFromShared = gson.fromJson(jsonPreferences, type);
-
-        return brandsFromShared;
-    }
-
-    private List<FuelStation> getFuelStationsFromSharedPrefs(){
-        Gson gson = new Gson();
-        List<FuelStation> stationsFromShared;
-        SharedPreferences sharedPref = Objects.requireNonNull(getContext()).getSharedPreferences(FUEL_STATIONS_LIST, Context.MODE_PRIVATE);
-        String jsonPreferences = sharedPref.getString(FUEL_STATIONS_LIST, "");
-
-        Type type = new TypeToken<List<FuelStation>>() {}.getType();
-        stationsFromShared = gson.fromJson(jsonPreferences, type);
-
-        return stationsFromShared;
-    }
-
     private AdSize getAdSize() {
-        Display display = Objects.requireNonNull(getActivity()).getWindowManager().getDefaultDisplay();
+        Display display = requireActivity().getWindowManager().getDefaultDisplay();
         DisplayMetrics outMetrics = new DisplayMetrics();
         display.getMetrics(outMetrics);
 
@@ -282,5 +316,17 @@ public class StationCard extends Fragment {
         AdSize adSize = getAdSize();
         adView.setAdSize(adSize);
         adView.loadAd(adRequest);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        Activity a;
+
+        if (context instanceof Activity){
+            a=(Activity) context;
+        }
+
     }
 }

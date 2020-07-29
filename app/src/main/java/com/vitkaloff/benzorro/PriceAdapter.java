@@ -1,0 +1,72 @@
+package com.vitkaloff.benzorro;
+
+import android.content.Context;
+import android.util.Log;
+import android.util.SparseArray;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.vitkaloff.benzorro.ui.home.StationCard;
+
+import java.util.List;
+
+public class PriceAdapter extends RecyclerView.Adapter<PriceAdapter.ViewHolder> {
+    private LayoutInflater inflater;
+    private List<Price> prices;
+    private SparseArray<Fuel> fuels;
+    private SparseArray<Service> services;
+    private View.OnClickListener mOnItemClickListener;
+
+    public PriceAdapter(StationCard context, List<Price> prices) {
+        this.prices = prices;
+        this.inflater = LayoutInflater.from(context.getActivity());
+
+        fuels = SharedData.getFuel(inflater.getContext());
+        services = SharedData.getServices(inflater.getContext());
+    }
+    @Override
+    public PriceAdapter.ViewHolder onCreateViewHolder(ViewGroup container, int viewType) {
+
+        View view = inflater.inflate(R.layout.price_list, container, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int station) {
+        if (fuels.get(prices.get(station).getFuel()).getBrand()==0) {
+            holder.fuelView.setText(fuels.get(prices.get(station).getFuel()).getType());
+        }
+        else {
+            holder.fuelView.setText(fuels.get(prices.get(station).getFuel()).getBrandName());
+        }
+        holder.priceChangeView.setImageResource(R.drawable.ic_arrow_down_24);
+        holder.priceView.setText(prices.get(station).getPrice() + " \u20BD");
+    }
+
+    @Override
+    public int getItemCount() {
+        return prices.size();
+    }
+
+    public void setOnItemClickListener(View.OnClickListener itemClickListener) {
+        mOnItemClickListener = itemClickListener;
+    }
+
+    class ViewHolder extends RecyclerView.ViewHolder {
+        final ImageView priceChangeView;
+        final TextView fuelView, priceView;
+        ViewHolder(View view){
+            super(view);
+            fuelView = view.findViewById(R.id.fuelView);
+            priceChangeView = view.findViewById(R.id.priceChangeView);
+            priceView = view.findViewById(R.id.priceView);
+            itemView.setTag(this);
+            itemView.setOnClickListener(mOnItemClickListener);
+        }
+    }
+}

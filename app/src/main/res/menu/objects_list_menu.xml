@@ -5,11 +5,17 @@
     android:layout_height="match_parent">
 
     <item
-        android:title="Фильтр"
-        android:id="@+id/tuneListButton"
+        android:id="@+id/mapViewButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:icon="@drawable/ic_map_white_24dp"
+        android:title="Фильтр"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/mapViewButton"
+        android:layout_weight="1"
         android:icon="@drawable/ic_tune_white_24dp"
-        app:showAsAction="ifRoom"/>
+        android:title="Фильтр"
+        app:showAsAction="ifRoom" />
 </menu>

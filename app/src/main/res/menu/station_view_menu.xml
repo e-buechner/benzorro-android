@@ -14,11 +14,11 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:title="Поделиться"
+        android:title="История цен"
         android:id="@+id/shareStation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:icon="@drawable/ic_share_white_24dp"
+        android:icon="@drawable/ic_history_24"
         app:showAsAction="ifRoom"/>
 </menu>
