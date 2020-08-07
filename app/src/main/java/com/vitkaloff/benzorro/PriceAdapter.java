@@ -1,7 +1,6 @@
 package com.vitkaloff.benzorro;
 
-import android.content.Context;
-import android.util.Log;
+import android.graphics.Typeface;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +19,8 @@ public class PriceAdapter extends RecyclerView.Adapter<PriceAdapter.ViewHolder> 
     private List<Price> prices;
     private SparseArray<Fuel> fuels;
     private SparseArray<Service> services;
+    private Integer preferred_fuel_id;
+    private String preferred_fuel_type;
     private View.OnClickListener mOnItemClickListener;
 
     public PriceAdapter(StationCard context, List<Price> prices) {
@@ -28,6 +29,9 @@ public class PriceAdapter extends RecyclerView.Adapter<PriceAdapter.ViewHolder> 
 
         fuels = SharedData.getFuel(inflater.getContext());
         services = SharedData.getServices(inflater.getContext());
+        preferred_fuel_id = SharedData.getPreferredFuelId(inflater.getContext());
+        preferred_fuel_type = fuels.get(preferred_fuel_id).getType();
+
     }
     @Override
     public PriceAdapter.ViewHolder onCreateViewHolder(ViewGroup container, int viewType) {
@@ -44,6 +48,11 @@ public class PriceAdapter extends RecyclerView.Adapter<PriceAdapter.ViewHolder> 
         else {
             holder.fuelView.setText(fuels.get(prices.get(station).getFuel()).getBrandName());
         }
+
+        if(fuels.get(prices.get(station).getFuel()).getType().equals(preferred_fuel_type)){
+            holder.fuelView.setTypeface(null, Typeface.BOLD);
+        }
+
         holder.priceChangeView.setImageResource(R.drawable.ic_arrow_down_24);
         holder.priceView.setText(prices.get(station).getPrice() + " \u20BD");
     }

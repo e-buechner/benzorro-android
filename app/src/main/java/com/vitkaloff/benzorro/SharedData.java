@@ -15,6 +15,7 @@ public class SharedData {
     private static final String FUELS_LIST = "FuelsList";
     private static final String BRANDS_LIST = "BrandsList";
     private static final String SERVICES_LIST = "ServicesList";
+    private static final String PREFERRED_FUEL_ID = "PreferredFuelId";
 
     public static SparseArray<FuelStation> getStations(Context context){
         Gson gson = new Gson();
@@ -73,7 +74,20 @@ public class SharedData {
         }
         return array;
     }
+    public static Integer getPreferredFuelId(Context context){
+        SharedPreferences sharedPref = context.getSharedPreferences(PREFERRED_FUEL_ID, Context.MODE_PRIVATE);
+        String value = sharedPref.getString(PREFERRED_FUEL_ID, "0");
+        return Integer.parseInt(value);
+    }
 
+    public static void setPreferredFuelId(Context context, Integer fuel_id) {
+        SharedPreferences sharedPref = context.getSharedPreferences(PREFERRED_FUEL_ID, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        editor.putString(PREFERRED_FUEL_ID, fuel_id.toString());
+        editor.apply();
+        editor.commit();
+    }
     public static void writeStations(Context context, List<FuelStation> fuelStations) {
         Gson gson = new Gson();
         String listString = gson.toJson(fuelStations);

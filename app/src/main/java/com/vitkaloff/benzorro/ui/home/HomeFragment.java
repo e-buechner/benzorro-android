@@ -1,15 +1,25 @@
 package com.vitkaloff.benzorro.ui.home;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.Choreographer;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.faltenreich.skeletonlayout.Skeleton;
 import com.faltenreich.skeletonlayout.SkeletonLayoutUtils;
@@ -32,16 +42,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
 import retrofit2.Call;
 import retrofit2.Callback;
+
+import static android.content.res.ColorStateList.*;
 
 public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
@@ -119,17 +123,38 @@ public class HomeFragment extends Fragment {
                 fuels.clear();
                 fuels.addAll(response.body());
 
+                int preferred_id = SharedData.getPreferredFuelId(getContext());
+
                 for (int i=0; i<fuels.size(); i++ ) {
                     Fuel fuel = fuels.get(i);
                     if(fuel.getBrand()==0) {
                         Chip chip = new Chip(getContext());
+                        chip.setId(ViewCompat.generateViewId());
                         chip.setText(fuel.getType());
+                        chip.setHint(fuel.getId().toString());
                         chip.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                        chip.setCheckable(true);
+
+                        if(preferred_id==fuel.getId()){
+                            chip.setChecked(true);
+                        }
+
                         chipGroup.addView(chip);
+
+                        chip.setOnClickListener(v -> {
+                            SharedData.setPreferredFuelId(getContext(), Integer.parseInt(chip.getHint().toString()));
+                            chip.setChecked(true);
+                            adapter.notifyDataSetChanged();
+                        });
                     }
                 }
                 chipGroup.removeView(chip_holder);
+                chipGroup.setSingleSelection(true);
                 SharedData.writeFuels(requireActivity(), fuels);
+
+                if(SharedData.getPreferredFuelId(requireContext())==0){
+                    SharedData.setPreferredFuelId(requireActivity(), fuels.get(0).getId());
+                }
             }
 
             @Override
