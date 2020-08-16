@@ -1,7 +1,5 @@
 package com.vitkaloff.benzorro;
 
-import android.os.FileUriExposedException;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,16 +7,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
-import com.google.android.gms.dynamic.IFragmentWrapper;
 import com.vitkaloff.benzorro.ui.home.HomeFragment;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Random;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.ViewHolder> {
     private LayoutInflater inflater;
@@ -44,7 +39,7 @@ public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.
     @Override
     public void onBindViewHolder(FuelStationAdapter.ViewHolder holder, int id) {
         brands = SharedData.getBrands(inflater.getContext());
-        fuels = SharedData.getFuel(inflater.getContext());
+        fuels = SharedData.getFuels(inflater.getContext());
         preferred_fuel_id = SharedData.getPreferredFuelId(inflater.getContext());
 
         FuelStation fuelstation = fuelStationList.get(id);
@@ -54,7 +49,6 @@ public class FuelStationAdapter extends RecyclerView.Adapter<FuelStationAdapter.
                 .load(image_url)
                 .placeholder(R.drawable.ic_baseline_station_24)
                 .into(holder.imageView);
-        //holder.imageView.setImageResource(R.drawable.brand_1);
         holder.brandView.setText(brand.getName());
         holder.addressView.setText(fuelstation.getAddr());
         BigDecimal distance = BigDecimal.valueOf(fuelstation.getDistance() / 1000).setScale(2, BigDecimal.ROUND_HALF_DOWN);

@@ -1,6 +1,4 @@
-package com.vitkaloff.benzorro.ui.notifications;
-
-import com.vitkaloff.benzorro.R;
+package com.vitkaloff.benzorro.ui.settings;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

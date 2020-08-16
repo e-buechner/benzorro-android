@@ -1,9 +1,12 @@
 package com.vitkaloff.benzorro.ui.home;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.transition.ChangeImageTransform;
+import android.transition.ChangeTransform;
+import android.transition.Fade;
+import android.transition.TransitionSet;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +39,7 @@ import com.vitkaloff.benzorro.R;
 import com.vitkaloff.benzorro.RetrofitAPI;
 import com.vitkaloff.benzorro.Service;
 import com.vitkaloff.benzorro.SharedData;
+import com.vitkaloff.benzorro.ui.dashboard.MapFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -44,8 +48,6 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
-
-import static android.content.res.ColorStateList.*;
 
 public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
@@ -71,6 +73,14 @@ public class HomeFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putInt("station_id", selectedStation.getId());
         StationCard stationView = new StationCard();
+
+        stationView.setSharedElementEnterTransition(new DetailsTransition());
+        setExitTransition(new Fade());
+        stationView.setSharedElementReturnTransition(new DetailsTransition());
+        //fragmentTransaction.addSharedElement(viewHolder.itemView.findViewById(R.id.logo), "stationCardBrandLogo");
+        //fragmentTransaction.addSharedElement(viewHolder.itemView.findViewById(R.id.address), "stationCardAddress");
+        //fragmentTransaction.addSharedElement(viewHolder.itemView.findViewById(R.id.brand), "stationCardBrand);
+
         stationView.setArguments(bundle);
         fragmentTransaction.replace(this.getId(), stationView);
         fragmentTransaction.addToBackStack(null);
@@ -78,6 +88,14 @@ public class HomeFragment extends Fragment {
     };
 
     private static androidx.fragment.app.FragmentManager fragmentManager;
+
+    public class DetailsTransition extends TransitionSet {
+        public DetailsTransition() {
+            setOrdering(ORDERING_TOGETHER);
+            addTransition(new ChangeTransform()).
+                addTransition(new ChangeImageTransform());
+        }
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -111,7 +129,7 @@ public class HomeFragment extends Fragment {
             }
         }
 
-        ChipGroup chipGroup = root.findViewById(R.id.services);
+        ChipGroup chipGroup = root.findViewById(R.id.fuel_switcher);
         Chip chip_holder = new Chip(getContext());
         chip_holder.setVisibility(View.INVISIBLE);
         chipGroup.addView(chip_holder);
@@ -123,14 +141,14 @@ public class HomeFragment extends Fragment {
                 fuels.clear();
                 fuels.addAll(response.body());
 
-                int preferred_id = SharedData.getPreferredFuelId(getContext());
+                int preferred_id = SharedData.getPreferredFuelId(requireContext());
 
                 for (int i=0; i<fuels.size(); i++ ) {
                     Fuel fuel = fuels.get(i);
                     if(fuel.getBrand()==0) {
                         Chip chip = new Chip(getContext());
                         chip.setId(ViewCompat.generateViewId());
-                        chip.setText(fuel.getType());
+                        chip.setText(fuel.getBrandName());
                         chip.setHint(fuel.getId().toString());
                         chip.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                         chip.setCheckable(true);
@@ -252,6 +270,17 @@ public class HomeFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        Bundle bundle = new Bundle();
+        MapFragment mapFragment = new MapFragment();
+        mapFragment.setArguments(bundle);
+        fragmentTransaction.replace(this.getId(), mapFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+
         return super.onOptionsItemSelected(item);
     }
 

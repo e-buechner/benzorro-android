@@ -2,7 +2,6 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
@@ -14,7 +13,8 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginRight="5dp"
-        android:layout_gravity="center_vertical"/>
+        android:layout_gravity="center_vertical"
+        android:transitionName="stationCardBrandLogo"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -28,8 +28,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="top|left"
-            android:text="Бренд"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:transitionName="stationCardBrand"/>
 
         <TextView
             android:id="@+id/address"
@@ -38,8 +38,8 @@
             android:layout_gravity="bottom"
             android:gravity="bottom|left"
             android:hapticFeedbackEnabled="false"
-            android:text="Адрес"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:transitionName="stationCardAddress"/>
 
     </LinearLayout>
 

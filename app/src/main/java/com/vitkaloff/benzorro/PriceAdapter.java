@@ -27,7 +27,7 @@ public class PriceAdapter extends RecyclerView.Adapter<PriceAdapter.ViewHolder> 
         this.prices = prices;
         this.inflater = LayoutInflater.from(context.getActivity());
 
-        fuels = SharedData.getFuel(inflater.getContext());
+        fuels = SharedData.getFuels(inflater.getContext());
         services = SharedData.getServices(inflater.getContext());
         preferred_fuel_id = SharedData.getPreferredFuelId(inflater.getContext());
         preferred_fuel_type = fuels.get(preferred_fuel_id).getType();

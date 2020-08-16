@@ -60,7 +60,7 @@ public class SharedData {
         }
         return array;
     }
-    public static SparseArray<Fuel> getFuel(Context context){
+    public static SparseArray<Fuel> getFuels(Context context){
         Gson gson = new Gson();
         SharedPreferences sharedPref = context.getSharedPreferences(FUELS_LIST, Context.MODE_PRIVATE);
         String jsonPreferences = sharedPref.getString(FUELS_LIST, "");

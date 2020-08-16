@@ -44,18 +44,18 @@
                             android:id="@+id/brand"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:text="Бренд"
                             android:textColor="#FFFFFF"
                             android:textSize="24sp"
-                            android:textStyle="bold"
-                            android:transitionName="stationCardBrand"/>
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/address"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_marginBottom="10sp"
-                            android:textColor="#FFFFFF"
-                            android:transitionName="stationCardAddress"/>
+                            android:text="адрес"
+                            android:textColor="#FFFFFF" />
 
                     </LinearLayout>
 
@@ -83,8 +83,7 @@
                                     android:id="@+id/logo"
                                     android:layout_width="70dp"
                                     android:layout_height="70dp"
-                                    android:scaleType="fitXY"
-                                    android:transitionName="stationCardBrandLogo"/>
+                                    android:scaleType="fitXY" />
 
                             </androidx.cardview.widget.CardView>
 
@@ -270,7 +269,5 @@
         app:rippleColor="#FFFFFF"
         app:srcCompat="@drawable/ic_navigation_white_24dp"
         app:tint="#FFFFFF" />
-
-    "
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

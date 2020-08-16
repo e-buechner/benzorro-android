@@ -16,7 +16,8 @@
             app:destination="@id/FuelStationView" />
         <action
             android:id="@+id/action_navigation_home_to_navigation_dashboard"
-            app:destination="@id/navigation_dashboard" />
+            app:destination="@id/navigation_dashboard"
+            app:enterAnim="@anim/nav_default_pop_enter_anim" />
     </fragment>
 
     <fragment
@@ -27,23 +28,13 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.vitkaloff.benzorro.ui.notifications.NotificationsFragment"
+        android:name="com.vitkaloff.benzorro.ui.settings.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 
     <fragment
-        android:id="@+id/navigation_about"
-        android:name="com.vitkaloff.benzorro.ui.notifications.NotificationsFragment"
-        android:label="@string/title_settings"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_settings"
+        android:name="com.vitkaloff.benzorro.ui.settings.SettingsFragment"
+        android:label="@string/title_settings" />
 
-    <fragment
-        android:id="@+id/FuelStationView"
-        android:name="com.vitkaloff.benzorro.ui.home.StationCard"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/station_card_fragment" >
-        <action
-            android:id="@+id/action_FuelStationView_to_navigation_notifications"
-            app:destination="@id/navigation_notifications" />
-    </fragment>
 </navigation>

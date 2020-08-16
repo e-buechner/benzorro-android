@@ -56,14 +56,14 @@ public class StationCard extends Fragment {
     private AdView adView;
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView (@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.station_card_fragment, container, false);
         setHasOptionsMenu(true);
 
         SparseArray<FuelStation> fuelStations = SharedData.getStations(requireActivity());
         SparseArray<Brand> brands = SharedData.getBrands(requireActivity());
-        SparseArray<Fuel> fuels = SharedData.getFuel(requireActivity());
+        SparseArray<Fuel> fuels = SharedData.getFuels(requireActivity());
         SparseArray<Service> services = SharedData.getServices(requireActivity());
 
         int station_id = getArguments().getInt("station_id", 0);
@@ -182,7 +182,7 @@ public class StationCard extends Fragment {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected (MenuItem item) {
         int id = item.getItemId();
         Snackbar.make(requireActivity().findViewById(android.R.id.content), getText(R.string.not_implemented), Snackbar.LENGTH_LONG).show();
         return super.onOptionsItemSelected(item);
@@ -197,7 +197,7 @@ public class StationCard extends Fragment {
         }
     }
 
-    public static void openPlayStore(Context context, String app_id) {
+    public static void openPlayStore (Context context, String app_id) {
         Intent storeIntent = new Intent(Intent.ACTION_VIEW,
                 Uri.parse("market://details?id=" + app_id));
         boolean marketFound = false;
